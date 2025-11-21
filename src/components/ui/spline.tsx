@@ -8,6 +8,13 @@ interface SplineSceneProps {
   className?: string
 }
 
+/**
+ * Renders a lazily loaded Spline scene inside a Suspense boundary with a centered spinner fallback.
+ *
+ * @param scene - Spline scene identifier or URL to load
+ * @param className - Optional CSS class applied to the Spline container
+ * @returns The rendered Spline scene wrapped in a Suspense boundary
+ */
 export function SplineScene({ scene, className }: SplineSceneProps) {
   return (
     <Suspense
