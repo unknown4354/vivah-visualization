@@ -11,7 +11,7 @@ export const CreateProjectSchema = z.object({
 
 export const UpdateProjectSchema = CreateProjectSchema.partial().extend({
   status: z.enum(['DRAFT', 'ACTIVE', 'REVIEW', 'COMPLETED', 'ARCHIVED']).optional(),
-  sceneData: z.record(z.unknown()).optional(),
+  sceneData: z.record(z.string(), z.unknown()).optional(),
   thumbnail: z.string().url().optional(),
 })
 
@@ -32,8 +32,8 @@ export const ProjectItemSchema = z.object({
     y: z.number(),
     z: z.number(),
   }),
-  materialOverride: z.record(z.unknown()).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  materialOverride: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const ShareLinkSchema = z.object({
