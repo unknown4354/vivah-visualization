@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  ADMIN
+  PLANNER
+  CLIENT
+  VIEWER
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  REVIEW
+  COMPLETED
+  ARCHIVED
+}
+
+enum ItemCategory {
+  TABLE
+  CHAIR
+  DECORATION
+  LIGHTING
+  STRUCTURE
+  FLORAL
+  MISC
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  name              String?
+  passwordHash      String?
+  role              UserRole  @default(PLANNER)
+  image             String?
+
+  projects          Project[]
+  aiGenerations     AIGeneration[]
+  activities        Activity[]
+  subscription      Subscription?
+
+  settings          Json      @default("{}")
+  onboardingComplete Boolean  @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Project {
+  id                String        @id @default(cuid())
+  name              String
+  description       String?
+  userId            String
+  venueId           String?
+
+  eventDate         DateTime?
+  guestCount        Int?
+  budget            Float?
+
+  sceneData         Json          @default("{}")
+  floorPlanUrl      String?
+  thumbnail         String?
+
+  status            ProjectStatus @default(DRAFT)
+  isTemplate        Boolean       @default(false)
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venue             Venue?        @relation(fields: [venueId], references: [id])
+  items             ProjectItem[]
+  shareLinks        ShareLink[]
+  exports           Export[]
+  aiGenerations     AIGeneration[]
+  activities        Activity[]
+  snapshots         Snapshot[]
+
+  lastAccessedAt    DateTime      @default(now())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId, status])
+  @@index([venueId])
+}
+
+model Venue {
+  id                String    @id @default(cuid())
+  name              String
+  slug              String    @unique
+
+  address           String
+  city              String
+  state             String?
+  country           String    @default("India")
+  coordinates       Json?
+
+  capacity          Int
+  area              Float?
+  dimensions        Json
+  features          String[]
+
+  images            String[]
+  floorPlanUrl      String?
+  model3DUrl        String?
+
+  projects          Project[]
+
+  metadata          Json      @default("{}")
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([city])
+}
+
+model FurnitureItem {
+  id                String        @id @default(cuid())
+  name              String
+  slug              String        @unique
+  category          ItemCategory
+  subcategory       String?
+
+  modelUrl          String
+  thumbnailUrl      String
+  iconUrl           String?
+
+  dimensions        Json
+  defaultScale      Float         @default(1.0)
+  polyCount         Int
+  fileSize          Int
+
+  materials         Json[]
+  variations        Json?
+
+  tags              String[]
+  isActive          Boolean       @default(true)
+  isPremium         Boolean       @default(false)
+
+  projectItems      ProjectItem[]
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([category])
+  @@index([slug])
+  @@index([tags])
+}
+
+model ProjectItem {
+  id                String        @id @default(cuid())
+  projectId         String
+  furnitureItemId   String
+
+  position          Json
+  rotation          Json
+  scale             Json
+
+  materialOverride  Json?
+  metadata          Json?
+
+  project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  furnitureItem     FurnitureItem @relation(fields: [furnitureItemId], references: [id])
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([projectId])
+  @@unique([projectId, id])
+}
+
+model ShareLink {
+  id                String    @id @default(cuid())
+  projectId         String
+  token             String    @unique @default(cuid())
+
+  canEdit           Boolean   @default(false)
+  canComment        Boolean   @default(true)
+  canExport         Boolean   @default(false)
+
+  password          String?
+  expiresAt         DateTime?
+  maxViews          Int?
+  currentViews      Int       @default(0)
+
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  lastViewedAt      DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([token])
+  @@index([projectId])
+}
+
+model Snapshot {
+  id                String    @id @default(cuid())
+  projectId         String
+  name              String
+  description       String?
+
+  sceneData         Json
+  thumbnail         String?
+
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime  @default(now())
+
+  @@index([projectId])
+}
+
+model AIGeneration {
+  id                String    @id @default(cuid())
+  userId            String
+  projectId         String?
+
+  type              String
+  prompt            String    @db.Text
+  model             String
+
+  resultUrl         String
+  metadata          Json?
+
+  credits           Int       @default(1)
+  processingTime    Int?
+
+  user              User      @relation(fields: [userId], references: [id])
+  project           Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model Export {
+  id                String    @id @default(cuid())
+  projectId         String
+
+  format            String
+  url               String
+
+  resolution        String?
+  settings          Json?
+
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime?
+
+  @@index([projectId])
+}
+
+model Activity {
+  id                String    @id @default(cuid())
+  userId            String
+  projectId         String?
+
+  action            String
+  metadata          Json?
+
+  user              User      @relation(fields: [userId], references: [id])
+  project           Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+
+  stripeCustomerId  String?   @unique
+  stripePriceId     String?
+  stripeStatus      String?
+
+  tier              String    @default("free")
+  credits           Int       @default(5)
+
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean   @default(false)
+
+  user              User      @relation(fields: [userId], references: [id])
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([stripeCustomerId])
+}
