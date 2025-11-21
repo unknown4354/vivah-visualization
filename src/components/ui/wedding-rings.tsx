@@ -41,16 +41,16 @@ function IntertwineRings() {
       floatIntensity={0.5}
     >
       <group ref={groupRef}>
-        {/* First Ring - Silver */}
+        {/* First Ring - Silver, tilted forward */}
         <Ring
-          position={[-0.4, 0, 0]}
-          rotation={[Math.PI / 2, 0, Math.PI / 6]}
+          position={[-0.3, 0, 0]}
+          rotation={[Math.PI / 2.5, Math.PI / 8, 0]}
           color="#C0C0C0"
         />
-        {/* Second Ring - Silver, intertwined through first */}
+        {/* Second Ring - Silver, tilted back and passing through first */}
         <Ring
-          position={[0.4, 0, 0]}
-          rotation={[Math.PI / 2, 0, -Math.PI / 6]}
+          position={[0.3, 0, 0]}
+          rotation={[Math.PI / 1.8, -Math.PI / 8, Math.PI / 2]}
           color="#E8E8E8"
         />
       </group>
