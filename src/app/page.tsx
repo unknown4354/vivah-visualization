@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { WeddingRings } from "@/components/ui/wedding-rings"
 import { Spotlight } from "@/components/ui/spotlight"
+import { Features } from "@/components/ui/features"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 
@@ -131,6 +132,55 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Features Section */}
+      <Features />
+
+      {/* CTA Section */}
+      <section className="py-24 px-6 sm:px-8 lg:px-12 bg-black">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto text-center space-y-8"
+        >
+          <h2 className="text-3xl sm:text-4xl font-light tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
+              Ready to Start Designing?
+            </span>
+          </h2>
+          <p className="text-neutral-400 text-lg font-light">
+            Join thousands of couples who have brought their wedding dreams to life.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/register">
+              <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8">
+                Create Free Account
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Final Footer */}
+      <footer className="py-8 px-6 sm:px-8 lg:px-12 border-t border-neutral-800 bg-black">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-px w-6 bg-neutral-600" />
+            <span className="text-sm font-light uppercase tracking-[0.2em] text-neutral-400">
+              Vivah Visualization
+            </span>
+          </div>
+          <div className="flex items-center gap-6 text-sm text-neutral-500">
+            <Link href="#" className="hover:text-neutral-300 transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-neutral-300 transition-colors">Terms</Link>
+            <Link href="#" className="hover:text-neutral-300 transition-colors">Contact</Link>
+          </div>
+          <span className="text-sm text-neutral-600">&copy; 2024 Vivah</span>
+        </div>
+      </footer>
     </div>
   )
 }

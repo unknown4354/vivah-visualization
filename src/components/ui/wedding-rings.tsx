@@ -18,7 +18,7 @@ function Ring({ position, rotation, color }: {
       <meshStandardMaterial
         color={color}
         metalness={1}
-        roughness={0.1}
+        roughness={0.15}
       />
     </mesh>
   )
@@ -41,17 +41,17 @@ function IntertwineRings() {
       floatIntensity={0.5}
     >
       <group ref={groupRef}>
-        {/* First Ring - Gold */}
+        {/* First Ring - Silver */}
         <Ring
-          position={[-0.5, 0, 0]}
-          rotation={[Math.PI / 2, 0, 0]}
-          color="#D4AF37"
+          position={[-0.4, 0, 0]}
+          rotation={[Math.PI / 2, 0, Math.PI / 6]}
+          color="#C0C0C0"
         />
-        {/* Second Ring - Rose Gold, intertwined */}
+        {/* Second Ring - Silver, intertwined through first */}
         <Ring
-          position={[0.5, 0, 0]}
-          rotation={[Math.PI / 2, Math.PI / 4, Math.PI / 6]}
-          color="#E8C4B8"
+          position={[0.4, 0, 0]}
+          rotation={[Math.PI / 2, 0, -Math.PI / 6]}
+          color="#E8E8E8"
         />
       </group>
     </Float>
