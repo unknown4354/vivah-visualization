@@ -64,11 +64,24 @@ function IntertwineRings() {
           color="#C0C0C0"
         />
         {/* Second Ring - Silver, tilted back and passing through first */}
-        <Ring
-          position={[0.3, 0, 0]}
-          rotation={[Math.PI / 1.8, -Math.PI / 8, Math.PI / 2]}
-          color="#E8E8E8"
-        />
+        <group position={[0.3, 0, 0]} rotation={[Math.PI / 1.8, -Math.PI / 8, Math.PI / 2]}>
+          <Ring
+            position={[0, 0, 0]}
+            rotation={[0, 0, 0]}
+            color="#E8E8E8"
+          />
+          {/* Diamond on second ring */}
+          <mesh position={[0, 1.08, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <octahedronGeometry args={[0.12, 0]} />
+            <meshStandardMaterial
+              color="#ffffff"
+              metalness={0.1}
+              roughness={0}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+        </group>
       </group>
     </Float>
   )
