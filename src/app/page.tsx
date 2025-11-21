@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { SplineScene } from "@/components/ui/spline"
+import { WeddingRings } from "@/components/ui/wedding-rings"
 import { Spotlight } from "@/components/ui/spotlight"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
@@ -106,10 +106,7 @@ export default function LandingPage() {
 
           {/* Right - 3D Scene */}
           <div className="hidden lg:block flex-1 relative">
-            <SplineScene
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="w-full h-full"
-            />
+            <WeddingRings className="w-full h-full" />
           </div>
         </div>
 
