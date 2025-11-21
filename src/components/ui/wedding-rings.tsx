@@ -5,6 +5,14 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Float } from '@react-three/drei'
 import * as THREE from 'three'
 
+/**
+ * Render a single torus mesh styled as a metallic ring.
+ *
+ * @param position - World-space [x, y, z] translation for the ring
+ * @param rotation - Euler rotation [x, y, z] in radians applied to the ring
+ * @param color - CSS color string used for the ring's standard material
+ * @returns The JSX element for the torus mesh
+ */
 function Ring({ position, rotation, color }: {
   position: [number, number, number]
   rotation: [number, number, number]
@@ -24,6 +32,14 @@ function Ring({ position, rotation, color }: {
   )
 }
 
+/**
+ * Render a floating group of two intertwined 3D rings with continuous rotation and subtle X-axis oscillation.
+ *
+ * The group is wrapped in a `Float` wrapper for global floating motion; the group's Y rotation increases over time
+ * and its X rotation oscillates with a sine wave to create a subtle rocking effect.
+ *
+ * @returns A JSX element containing the floating, animated group with two torus ring meshes (gold and rose gold).
+ */
 function IntertwineRings() {
   const groupRef = useRef<THREE.Group>(null)
 
@@ -62,6 +78,12 @@ interface WeddingRingsProps {
   className?: string
 }
 
+/**
+ * Render a Three.js Canvas displaying two animated, intertwined wedding rings.
+ *
+ * @param className - Optional CSS class name applied to the outer container div
+ * @returns A React element containing the 3D rings scene (Canvas with lights, animated rings, and environment) wrapped in a div
+ */
 export function WeddingRings({ className }: WeddingRingsProps) {
   return (
     <div className={className}>

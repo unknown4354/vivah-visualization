@@ -7,6 +7,15 @@ import { Spotlight } from "@/components/ui/spotlight"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 
+/**
+ * Render the full-screen, high-contrast landing page for the Vivah application.
+ *
+ * The component composes a black hero with animated navigation, headline and CTA,
+ * a responsive 3D visual (WeddingRings) shown on large screens, subtle feature tags,
+ * and a compact footer; it is purely presentational.
+ *
+ * @returns The JSX element for the landing page.
+ */
 export default function LandingPage() {
   return (
     <div className="min-h-dvh w-full bg-black text-white">
