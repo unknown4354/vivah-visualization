@@ -45,8 +45,10 @@ export function FurnitureModel({
     return <boxGeometry args={[0.5, 0.5, 0.5]} />
   }
 
-  const getColor = () => {
-    if (materialOverride?.color) return materialOverride.color
+  const getColor = (): string => {
+    if (materialOverride?.color && typeof materialOverride.color === 'string') {
+      return materialOverride.color
+    }
     if (furnitureItemId.includes('gold')) return '#FFD700'
     if (furnitureItemId.includes('white')) return '#FFFFFF'
     return '#DEB887'
