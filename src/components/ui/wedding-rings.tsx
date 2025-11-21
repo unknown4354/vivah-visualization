@@ -57,12 +57,45 @@ function IntertwineRings() {
       floatIntensity={0.5}
     >
       <group ref={groupRef}>
-        {/* First Ring - Silver, tilted forward */}
-        <Ring
-          position={[-0.3, 0, 0]}
-          rotation={[Math.PI / 2.5, Math.PI / 8, 0]}
-          color="#C0C0C0"
-        />
+        {/* First Ring - Silver, tilted forward with diamond */}
+        <group position={[-0.3, 0, 0]} rotation={[Math.PI / 2.5, Math.PI / 8, 0]}>
+          <Ring
+            position={[0, 0, 0]}
+            rotation={[0, 0, 0]}
+            color="#C0C0C0"
+          />
+          {/* Diamond on first ring - brilliant cut style */}
+          <group position={[0, 1.08, 0]}>
+            {/* Crown (top pyramid) */}
+            <mesh position={[0, 0.04, 0]} rotation={[Math.PI, 0, 0]}>
+              <coneGeometry args={[0.08, 0.06, 8]} />
+              <meshPhysicalMaterial
+                color="#f0f8ff"
+                metalness={0.0}
+                roughness={0.0}
+                transmission={0.9}
+                thickness={0.5}
+                ior={2.4}
+                clearcoat={1}
+                clearcoatRoughness={0}
+              />
+            </mesh>
+            {/* Pavilion (bottom pyramid) */}
+            <mesh position={[0, -0.03, 0]}>
+              <coneGeometry args={[0.08, 0.1, 8]} />
+              <meshPhysicalMaterial
+                color="#f0f8ff"
+                metalness={0.0}
+                roughness={0.0}
+                transmission={0.9}
+                thickness={0.5}
+                ior={2.4}
+                clearcoat={1}
+                clearcoatRoughness={0}
+              />
+            </mesh>
+          </group>
+        </group>
         {/* Second Ring - Silver, tilted back and passing through first */}
         <group position={[0.3, 0, 0]} rotation={[Math.PI / 1.8, -Math.PI / 8, Math.PI / 2]}>
           <Ring
@@ -70,17 +103,37 @@ function IntertwineRings() {
             rotation={[0, 0, 0]}
             color="#E8E8E8"
           />
-          {/* Diamond on second ring */}
-          <mesh position={[0, 1.08, 0]} rotation={[0, 0, Math.PI / 4]}>
-            <octahedronGeometry args={[0.12, 0]} />
-            <meshStandardMaterial
-              color="#ffffff"
-              metalness={0.1}
-              roughness={0}
-              transparent
-              opacity={0.9}
-            />
-          </mesh>
+          {/* Diamond on second ring - brilliant cut style */}
+          <group position={[0, 1.08, 0]}>
+            {/* Crown (top pyramid) */}
+            <mesh position={[0, 0.04, 0]} rotation={[Math.PI, 0, 0]}>
+              <coneGeometry args={[0.08, 0.06, 8]} />
+              <meshPhysicalMaterial
+                color="#f0f8ff"
+                metalness={0.0}
+                roughness={0.0}
+                transmission={0.9}
+                thickness={0.5}
+                ior={2.4}
+                clearcoat={1}
+                clearcoatRoughness={0}
+              />
+            </mesh>
+            {/* Pavilion (bottom pyramid) */}
+            <mesh position={[0, -0.03, 0]}>
+              <coneGeometry args={[0.08, 0.1, 8]} />
+              <meshPhysicalMaterial
+                color="#f0f8ff"
+                metalness={0.0}
+                roughness={0.0}
+                transmission={0.9}
+                thickness={0.5}
+                ior={2.4}
+                clearcoat={1}
+                clearcoatRoughness={0}
+              />
+            </mesh>
+          </group>
         </group>
       </group>
     </Float>
