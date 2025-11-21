@@ -5,9 +5,19 @@ import { Button } from "@/components/ui/button"
 import { WeddingRings } from "@/components/ui/wedding-rings"
 import { Spotlight } from "@/components/ui/spotlight"
 import { Features } from "@/components/ui/features"
+import { FlickeringFooter } from "@/components/ui/flickering-footer"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 
+/**
+ * Render the full-screen, high-contrast landing page for the Vivah application.
+ *
+ * The component composes a black hero with animated navigation, headline and CTA,
+ * a responsive 3D visual (WeddingRings) shown on large screens, subtle feature tags,
+ * and a compact footer; it is purely presentational.
+ *
+ * @returns The JSX element for the landing page.
+ */
 export default function LandingPage() {
   return (
     <div className="min-h-dvh w-full bg-black text-white">
@@ -164,23 +174,8 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Final Footer */}
-      <footer className="py-8 px-6 sm:px-8 lg:px-12 border-t border-neutral-800 bg-black">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-px w-6 bg-neutral-600" />
-            <span className="text-sm font-light uppercase tracking-[0.2em] text-neutral-400">
-              Vivah Visualization
-            </span>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-neutral-500">
-            <Link href="#" className="hover:text-neutral-300 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-neutral-300 transition-colors">Terms</Link>
-            <Link href="#" className="hover:text-neutral-300 transition-colors">Contact</Link>
-          </div>
-          <span className="text-sm text-neutral-600">&copy; 2024 Vivah</span>
-        </div>
-      </footer>
+      {/* Flickering Footer */}
+      <FlickeringFooter />
     </div>
   )
 }
