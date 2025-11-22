@@ -83,9 +83,28 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
+    // Only allow specific fields to be updated (prevent mass assignment)
+    const allowedFields = {
+      name: body.name,
+      description: body.description,
+      venueId: body.venueId,
+      eventDate: body.eventDate,
+      guestCount: body.guestCount,
+      budget: body.budget,
+      sceneData: body.sceneData,
+      floorPlanUrl: body.floorPlanUrl,
+      thumbnail: body.thumbnail,
+      status: body.status,
+    }
+
+    // Remove undefined values
+    const updateData = Object.fromEntries(
+      Object.entries(allowedFields).filter(([_, v]) => v !== undefined)
+    )
+
     const updated = await prisma.project.update({
       where: { id },
-      data: body,
+      data: updateData,
       include: {
         venue: true,
         items: {

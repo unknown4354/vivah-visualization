@@ -120,12 +120,17 @@ function Scene() {
 export function ThreeScene() {
   const { cameraPosition } = useCanvasStore()
 
+  // Use store camera position with fallback to default
+  const camPos: [number, number, number] = cameraPosition
+    ? [cameraPosition.x, cameraPosition.y, cameraPosition.z]
+    : [10, 10, 10]
+
   return (
     <div className="w-full h-full">
       <Canvas
         shadows
         camera={{
-          position: [10, 10, 10],
+          position: camPos,
           fov: 50,
           near: 0.1,
           far: 1000
