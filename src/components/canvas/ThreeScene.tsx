@@ -25,7 +25,7 @@ function Scene() {
     clearSelection
   } = useCanvasStore()
 
-  const transformRef = useRef<any>()
+  const transformRef = useRef<any>(null)
 
   // Get the first selected item's object for transform controls
   const selectedItem = selectedItems.length === 1
