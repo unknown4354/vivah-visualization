@@ -88,7 +88,7 @@ function Scene() {
       </GizmoHelper>
 
       {/* Furniture Items */}
-      <Bounds fit clip observe damping={6} margin={1.2}>
+      <Bounds fit clip observe margin={1.2}>
         {Array.from(items.values()).map(item => (
           <FurnitureModel
             key={item.id}
