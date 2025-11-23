@@ -38,6 +38,7 @@ export default function ProjectsPage() {
 
   const fetchProjects = async () => {
     try {
+      setError("")
       setIsLoading(true)
       const response = await fetch("/api/projects?limit=50")
       if (!response.ok) throw new Error("Failed to fetch projects")
@@ -66,7 +67,7 @@ export default function ProjectsPage() {
 
       if (!response.ok) throw new Error("Failed to delete project")
 
-      setProjects(projects.filter(p => p.id !== projectId))
+      setProjects(prev => prev.filter(p => p.id !== projectId))
     } catch (err) {
       console.error(err)
       alert("Failed to delete project")
@@ -86,7 +87,7 @@ export default function ProjectsPage() {
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.venue?.name.toLowerCase().includes(searchQuery.toLowerCase())
+    (project.venue?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   )
 
   if (isLoading) {
