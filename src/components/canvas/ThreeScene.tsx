@@ -98,27 +98,12 @@ function Scene() {
           />
         ))}
       </Bounds>
-
-      {/* Click on empty space to deselect */}
-      <mesh
-        position={[0, -0.1, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        onClick={(e) => {
-          if (e.object.userData.isFloor) {
-            clearSelection()
-          }
-        }}
-        userData={{ isFloor: true }}
-      >
-        <planeGeometry args={[100, 100]} />
-        <meshBasicMaterial visible={false} />
-      </mesh>
     </>
   )
 }
 
 export function ThreeScene() {
-  const { cameraPosition } = useCanvasStore()
+  const { cameraPosition, clearSelection } = useCanvasStore()
 
   // Use store camera position with fallback to default
   const camPos: [number, number, number] = cameraPosition
@@ -142,6 +127,7 @@ export function ThreeScene() {
         }}
         onPointerMissed={() => {
           // Clear selection when clicking empty space
+          clearSelection()
         }}
       >
         <Suspense fallback={null}>

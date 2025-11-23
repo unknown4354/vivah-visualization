@@ -6,8 +6,8 @@ import { RegisterSchema, LoginSchema } from '@/lib/validators/auth'
 import { z } from 'zod'
 
 // Dummy bcrypt hash for timing attack prevention
-// This is a valid bcrypt hash that will always fail comparison
-const DUMMY_BCRYPT_HASH = '$2a$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ'
+// This is a valid bcrypt hash (of 'dummy-password') that will always fail comparison
+const DUMMY_BCRYPT_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'
 
 export async function register(values: z.infer<typeof RegisterSchema>) {
   const validatedFields = RegisterSchema.safeParse(values)
