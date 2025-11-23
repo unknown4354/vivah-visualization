@@ -1,6 +1,6 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import {
   OrbitControls,
   Grid,
@@ -8,13 +8,78 @@ import {
   TransformControls,
   GizmoHelper,
   GizmoViewport,
-  Select,
   Bounds
 } from '@react-three/drei'
-import { Suspense, useRef, useEffect } from 'react'
+import { Suspense, useRef, useEffect, useState } from 'react'
 import * as THREE from 'three'
 import { useCanvasStore } from '@/stores/canvas-store'
 import { FurnitureModel } from './FurnitureModel'
+
+function TransformableItem({
+  item,
+  selected,
+  onSelect,
+  activeTool
+}: {
+  item: any
+  selected: boolean
+  onSelect: () => void
+  activeTool: string
+}) {
+  const meshRef = useRef<THREE.Group>(null)
+  const { updateItem, saveHistory } = useCanvasStore()
+  const { gl } = useThree()
+
+  // Determine transform mode based on active tool
+  const getMode = () => {
+    switch (activeTool) {
+      case 'move':
+        return 'translate'
+      case 'rotate':
+        return 'rotate'
+      case 'scale':
+        return 'scale'
+      default:
+        return 'translate'
+    }
+  }
+
+  const handleTransformEnd = () => {
+    if (!meshRef.current) return
+
+    const pos = meshRef.current.position
+    const rot = meshRef.current.rotation
+    const scl = meshRef.current.scale
+
+    updateItem(item.id, {
+      position: { x: pos.x, y: pos.y, z: pos.z },
+      rotation: { x: rot.x, y: rot.y, z: rot.z },
+      scale: { x: scl.x, y: scl.y, z: scl.z }
+    })
+
+    // Save to history after transform
+    saveHistory()
+  }
+
+  return (
+    <>
+      <FurnitureModel
+        ref={meshRef}
+        {...item}
+        selected={selected}
+        onSelect={onSelect}
+      />
+      {selected && (activeTool === 'move' || activeTool === 'rotate' || activeTool === 'scale') && meshRef.current && (
+        <TransformControls
+          object={meshRef.current}
+          mode={getMode()}
+          onMouseUp={handleTransformEnd}
+          size={0.75}
+        />
+      )}
+    </>
+  )
+}
 
 function Scene() {
   const {
@@ -24,13 +89,6 @@ function Scene() {
     selectItem,
     clearSelection
   } = useCanvasStore()
-
-  const transformRef = useRef<any>(null)
-
-  // Get the first selected item's object for transform controls
-  const selectedItem = selectedItems.length === 1
-    ? Array.from(items.values()).find(item => item.id === selectedItems[0])
-    : null
 
   return (
     <>
@@ -90,11 +148,12 @@ function Scene() {
       {/* Furniture Items */}
       <Bounds fit clip observe margin={1.2}>
         {Array.from(items.values()).map(item => (
-          <FurnitureModel
+          <TransformableItem
             key={item.id}
-            {...item}
+            item={item}
             selected={selectedItems.includes(item.id)}
             onSelect={() => selectItem(item.id)}
+            activeTool={activeTool}
           />
         ))}
       </Bounds>
