@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, use } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { useCanvasStore } from '@/stores/canvas-store'
 import { ThreeScene } from '@/components/canvas/ThreeScene'
 import { Canvas2D } from '@/components/canvas/Canvas2D'
@@ -23,12 +23,9 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export default function ProjectEditorPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
+export default function ProjectEditorPage() {
+  const params = useParams()
+  const id = params.id as string
   const router = useRouter()
   const [projectName, setProjectName] = useState('Loading...')
   const [isSaving, setIsSaving] = useState(false)

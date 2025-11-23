@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
-import { Canvas as FabricCanvas, Rect, Circle, Group, FabricText } from 'fabric'
+import { useEffect, useRef } from 'react'
+import { Canvas as FabricCanvas, Rect, Circle } from 'fabric'
 import { useCanvasStore } from '@/stores/canvas-store'
-import * as THREE from 'three'
 
 export function Canvas2D() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -14,10 +13,7 @@ export function Canvas2D() {
     items,
     selectedItems,
     selectItem,
-    clearSelection,
-    updateItem,
-    snapToGrid,
-    gridSize
+    clearSelection
   } = useCanvasStore()
 
   // Initialize Fabric canvas
@@ -69,6 +65,14 @@ export function Canvas2D() {
       const id = (obj as any).itemId
       if (!id) return
 
+      // Get current state to avoid stale closures
+      const state = useCanvasStore.getState()
+      const { snapToGrid, gridSize, updateItem, saveHistory } = state
+
+      // Get current container dimensions
+      const currentWidth = containerRef.current?.clientWidth || 0
+      const currentHeight = containerRef.current?.clientHeight || 0
+
       let x = obj.left || 0
       let z = obj.top || 0
 
@@ -81,14 +85,17 @@ export function Canvas2D() {
       }
 
       // Convert from canvas coordinates to 3D world coordinates
-      const worldX = (x - width / 2) / 20
-      const worldZ = (z - height / 2) / 20
+      const worldX = (x - currentWidth / 2) / 20
+      const worldZ = (z - currentHeight / 2) / 20
       const angle = obj.angle || 0
 
       updateItem(id, {
-        position: new THREE.Vector3(worldX, 0, worldZ),
-        rotation: new THREE.Euler(0, (angle * Math.PI) / 180, 0)
+        position: { x: worldX, y: 0, z: worldZ },
+        rotation: { x: 0, y: (angle * Math.PI) / 180, z: 0 }
       })
+
+      // Save to history after update
+      saveHistory()
     })
 
     // Handle resize
@@ -106,7 +113,7 @@ export function Canvas2D() {
       window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
-  }, [])
+  }, [clearSelection, selectItem])
 
   // Sync items to canvas
   useEffect(() => {
