@@ -4,6 +4,7 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCanvasStore } from '@/stores/canvas-store'
 import { ThreeScene } from '@/components/canvas/ThreeScene'
+import { Canvas2D } from '@/components/canvas/Canvas2D'
 import { FurnitureLibrary } from '@/components/editor/FurnitureLibrary'
 import { Button } from '@/components/ui/button'
 import {
@@ -263,13 +264,7 @@ export default function ProjectEditorPage({
           {viewMode === '3D' ? (
             <ThreeScene />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <p className="text-gray-500">
-                2D view coming soon...
-                <br />
-                <span className="text-sm">Switch to 3D to start designing</span>
-              </p>
-            </div>
+            <Canvas2D />
           )}
 
           {/* Item count indicator */}

@@ -13,6 +13,11 @@ export interface CanvasItem {
   materialOverride?: Record<string, unknown>
 }
 
+interface HistoryEntry {
+  items: CanvasItem[]
+  timestamp: number
+}
+
 interface CanvasState {
   // View state
   viewMode: '2D' | '3D'
@@ -33,7 +38,7 @@ interface CanvasState {
   gridSize: number
 
   // History
-  history: unknown[]
+  history: HistoryEntry[]
   historyIndex: number
 
   // Actions
@@ -49,11 +54,14 @@ interface CanvasState {
   // History
   undo: () => void
   redo: () => void
+  saveHistory: () => void
 
   // Utils
   exportScene: () => unknown
   importScene: (data: unknown) => void
 }
+
+const MAX_HISTORY = 50
 
 export const useCanvasStore = create<CanvasState>()(
   subscribeWithSelector((set, get) => ({
@@ -82,7 +90,24 @@ export const useCanvasStore = create<CanvasState>()(
       set((state) => {
         const newItems = new Map(state.items)
         newItems.set(item.id, item)
-        return { items: newItems }
+
+        // Save to history
+        const newHistory = state.history.slice(0, state.historyIndex + 1)
+        newHistory.push({
+          items: Array.from(newItems.values()),
+          timestamp: Date.now()
+        })
+
+        // Limit history size
+        if (newHistory.length > MAX_HISTORY) {
+          newHistory.shift()
+        }
+
+        return {
+          items: newItems,
+          history: newHistory,
+          historyIndex: newHistory.length - 1
+        }
       }),
 
     updateItem: (id, updates) =>
@@ -99,9 +124,23 @@ export const useCanvasStore = create<CanvasState>()(
       set((state) => {
         const newItems = new Map(state.items)
         newItems.delete(id)
+
+        // Save to history
+        const newHistory = state.history.slice(0, state.historyIndex + 1)
+        newHistory.push({
+          items: Array.from(newItems.values()),
+          timestamp: Date.now()
+        })
+
+        if (newHistory.length > MAX_HISTORY) {
+          newHistory.shift()
+        }
+
         return {
           items: newItems,
           selectedItems: state.selectedItems.filter((i) => i !== id),
+          history: newHistory,
+          historyIndex: newHistory.length - 1
         }
       }),
 
@@ -124,10 +163,40 @@ export const useCanvasStore = create<CanvasState>()(
 
     setSnapToGrid: (snap) => set({ snapToGrid: snap }),
 
+    saveHistory: () =>
+      set((state) => {
+        const newHistory = state.history.slice(0, state.historyIndex + 1)
+        newHistory.push({
+          items: Array.from(state.items.values()),
+          timestamp: Date.now()
+        })
+
+        if (newHistory.length > MAX_HISTORY) {
+          newHistory.shift()
+        }
+
+        return {
+          history: newHistory,
+          historyIndex: newHistory.length - 1
+        }
+      }),
+
     undo: () =>
       set((state) => {
         if (state.historyIndex > 0) {
-          return { historyIndex: state.historyIndex - 1 }
+          const prevIndex = state.historyIndex - 1
+          const prevEntry = state.history[prevIndex]
+          if (prevEntry) {
+            const items = new Map<string, CanvasItem>()
+            prevEntry.items.forEach((item) => {
+              items.set(item.id, item)
+            })
+            return {
+              items,
+              historyIndex: prevIndex,
+              selectedItems: []
+            }
+          }
         }
         return state
       }),
@@ -135,7 +204,19 @@ export const useCanvasStore = create<CanvasState>()(
     redo: () =>
       set((state) => {
         if (state.historyIndex < state.history.length - 1) {
-          return { historyIndex: state.historyIndex + 1 }
+          const nextIndex = state.historyIndex + 1
+          const nextEntry = state.history[nextIndex]
+          if (nextEntry) {
+            const items = new Map<string, CanvasItem>()
+            nextEntry.items.forEach((item) => {
+              items.set(item.id, item)
+            })
+            return {
+              items,
+              historyIndex: nextIndex,
+              selectedItems: []
+            }
+          }
         }
         return state
       }),
@@ -171,12 +252,20 @@ export const useCanvasStore = create<CanvasState>()(
           items.set(item.id, item)
         })
 
+        // Initialize history with imported state
+        const initialHistory: HistoryEntry[] = [{
+          items: sceneData.items,
+          timestamp: Date.now()
+        }]
+
         return {
           items,
           viewMode: sceneData.viewMode,
           cameraPosition: sceneData.camera.position,
           cameraTarget: sceneData.camera.target,
           zoom: sceneData.camera.zoom,
+          history: initialHistory,
+          historyIndex: 0
         }
       }),
   }))
