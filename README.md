@@ -1,5 +1,50 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Setup
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure required environment variables:
+
+### Database (PostgreSQL)
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/vivah_visualization
+DIRECT_URL=postgresql://user:password@localhost:5432/vivah_visualization
+```
+
+### NextAuth
+```
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key-here
+```
+Generate a secret: `openssl rand -base64 32`
+
+### Upstash Redis (Rate Limiting)
+Rate limiting for registration uses Upstash Redis.
+
+1. Create a free account at [Upstash Console](https://console.upstash.com/redis)
+2. Create a new Redis database
+3. Copy the REST URL and token:
+```
+UPSTASH_REDIS_REST_URL=https://your-region.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-upstash-redis-rest-token
+```
+
+### Database Setup
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev
+
+# Seed the database
+npm run db:seed
+```
+
 ## Getting Started
 
 First, run the development server:
