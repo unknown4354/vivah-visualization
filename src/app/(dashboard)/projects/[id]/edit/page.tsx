@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState, use } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCanvasStore } from '@/stores/canvas-store'
 import { ThreeScene } from '@/components/canvas/ThreeScene'
 import { FurnitureLibrary } from '@/components/editor/FurnitureLibrary'
@@ -13,15 +15,25 @@ import {
   Grid3X3,
   Undo,
   Redo,
-  Save
+  Save,
+  Loader2,
+  ArrowLeft
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export default function ProjectEditorPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  const { id } = use(params)
+  const router = useRouter()
+  const [projectName, setProjectName] = useState('Loading...')
+  const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'unsaved' | 'saving'>('saved')
+
   const {
     viewMode,
     setViewMode,
@@ -34,14 +46,71 @@ export default function ProjectEditorPage({
     removeItem,
     undo,
     redo,
-    exportScene
+    exportScene,
+    importScene
   } = useCanvasStore()
+
+  // Load project data on mount
+  useEffect(() => {
+    const loadProject = async () => {
+      try {
+        const response = await fetch(`/api/projects/${id}`)
+        if (!response.ok) {
+          if (response.status === 404) {
+            router.push('/projects')
+            return
+          }
+          throw new Error('Failed to load project')
+        }
+
+        const project = await response.json()
+        setProjectName(project.name)
+
+        // Import scene data if it exists
+        if (project.sceneData && project.sceneData.items) {
+          importScene(project.sceneData)
+        }
+      } catch (err) {
+        console.error('Error loading project:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadProject()
+  }, [id, router, importScene])
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (!isLoading) {
+      setSaveStatus('unsaved')
+    }
+  }, [items, isLoading])
 
   const handleSave = async () => {
     const sceneData = exportScene()
-    console.log('Saving scene:', sceneData)
-    // TODO: Call API to save project
-    alert('Scene saved! Check console for data.')
+    setIsSaving(true)
+    setSaveStatus('saving')
+
+    try {
+      const response = await fetch(`/api/projects/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sceneData }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save project')
+      }
+
+      setSaveStatus('saved')
+    } catch (err) {
+      console.error('Error saving project:', err)
+      setSaveStatus('unsaved')
+      alert('Failed to save project. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleDelete = () => {
@@ -59,12 +128,30 @@ export default function ProjectEditorPage({
     { id: 'scale', icon: Maximize2, label: 'Scale' },
   ] as const
 
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white border-b px-4 py-2 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="font-semibold">Project Editor</h1>
+          <Link href="/projects" className="text-gray-500 hover:text-gray-700">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div>
+            <h1 className="font-semibold">{projectName}</h1>
+            <span className="text-xs text-gray-500">
+              {saveStatus === 'saved' && 'All changes saved'}
+              {saveStatus === 'unsaved' && 'Unsaved changes'}
+              {saveStatus === 'saving' && 'Saving...'}
+            </span>
+          </div>
 
           {/* Toolbar */}
           <div className="flex items-center gap-1 border-l pl-4">
@@ -149,9 +236,13 @@ export default function ProjectEditorPage({
           >
             3D
           </Button>
-          <Button size="sm" onClick={handleSave}>
-            <Save className="h-4 w-4 mr-1" />
-            Save
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
+            {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </header>
