@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
-interface CanvasItem {
+export interface CanvasItem {
   id: string
   furnitureItemId: string
   position: { x: number; y: number; z: number }
