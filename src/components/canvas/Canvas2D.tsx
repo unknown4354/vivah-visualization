@@ -123,12 +123,8 @@ export function Canvas2D() {
     const height = containerRef.current.clientHeight
 
     // Remove existing item objects (keep grid)
-    const objects = canvas.getObjects()
-    objects.forEach(obj => {
-      if ((obj as any).itemId) {
-        canvas.remove(obj)
-      }
-    })
+    const objectsToRemove = canvas.getObjects().filter(obj => (obj as any).itemId)
+    objectsToRemove.forEach(obj => canvas.remove(obj))
 
     // Add items
     items.forEach(item => {
@@ -192,12 +188,8 @@ export function Canvas2D() {
 
 function drawGrid(canvas: FabricCanvas, width: number, height: number) {
   // Remove existing grid lines
-  const objects = canvas.getObjects()
-  objects.forEach(obj => {
-    if ((obj as any).isGrid) {
-      canvas.remove(obj)
-    }
-  })
+  const gridToRemove = canvas.getObjects().filter(obj => (obj as any).isGrid)
+  gridToRemove.forEach(obj => canvas.remove(obj))
 
   const gridSpacing = 20 // 20px = 1 meter
 
