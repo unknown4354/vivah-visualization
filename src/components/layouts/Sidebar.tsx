@@ -11,7 +11,10 @@ import {
     Settings,
     LogOut,
     FolderOpen,
-    Palette
+    Palette,
+    Wand2,
+    Box,
+    Image
 } from "lucide-react"
 
 const navItems = [
@@ -24,6 +27,16 @@ const navItems = [
         title: "Projects",
         href: "/projects",
         icon: FolderOpen
+    },
+    {
+        title: "AI Studio",
+        href: "/ai-studio",
+        icon: Wand2
+    },
+    {
+        title: "3D Gallery",
+        href: "/3d-gallery",
+        icon: Box
     },
     {
         title: "Design Library",
@@ -65,7 +78,7 @@ export function Sidebar() {
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                                         pathname === item.href
-                                            ? "bg-primary/10 text-primary"
+                                            ? "bg-secondary text-foreground"
                                             : "text-muted-foreground hover:bg-accent hover:text-foreground"
                                     )}
                                 >

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
+import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { CreateProjectSchema } from '@/lib/validators/project'
 import { z } from 'zod'
@@ -8,8 +7,10 @@ import { z } from 'zod'
 // GET /api/projects - List user's projects
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit
 
     const where = {
-      userId: session.user.id,
+      userId: user.id,
       ...(status && { status: status as any })
     }
 
@@ -37,6 +38,10 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           venue: true,
+          images: {
+            orderBy: { createdAt: 'desc' },
+            take: 5
+          },
           _count: {
             select: { items: true }
           }
@@ -69,13 +74,30 @@ export async function GET(req: NextRequest) {
 // POST /api/projects - Create new project
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json()
     const validatedData = CreateProjectSchema.parse(body)
+
+    // Ensure user exists in database (sync with Supabase Auth)
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email!,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0],
+      },
+      create: {
+        id: user.id,
+        email: user.email!,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0],
+        emailVerified: user.email_confirmed_at ? new Date(user.email_confirmed_at) : null,
+      }
+    })
 
     const project = await prisma.project.create({
       data: {
@@ -85,7 +107,7 @@ export async function POST(req: NextRequest) {
         eventDate: validatedData.eventDate,
         guestCount: validatedData.guestCount,
         budget: validatedData.budget,
-        userId: session.user.id,
+        userId: user.id,
         sceneData: {
           version: '1.0',
           camera: {
@@ -110,7 +132,7 @@ export async function POST(req: NextRequest) {
     // Log activity
     await prisma.activity.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         projectId: project.id,
         action: 'project.created',
         metadata: { projectName: project.name }

@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { AuthLayout } from "@/components/layouts/AuthLayout"
+import { createClient } from "@/lib/supabase/client"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -49,38 +49,29 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${firstName} ${lastName}`.trim(),
-          email,
-          password,
-          confirmPassword,
-        }),
+      const supabase = createClient()
+      const name = `${firstName} ${lastName}`.trim()
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Registration failed")
+      if (error) {
+        setError(error.message)
         return
       }
 
-      // Auto sign in after registration
-      const signInResult = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (signInResult?.error) {
-        // Registration succeeded but sign in failed, redirect to login
-        router.push("/login?registered=true")
-      } else {
-        router.push("/dashboard")
-        router.refresh()
-      }
+      // Redirect to dashboard (Supabase auto-signs in after signup)
+      router.push("/dashboard")
+      router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
     } finally {

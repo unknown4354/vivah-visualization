@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
+import { useUser } from "@/lib/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, ArrowRight, Clock, MapPin, Loader2 } from "lucide-react"
@@ -32,7 +32,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const session = useSession()?.data
+  const { user } = useUser()
   const [data, setData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -112,7 +112,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
-            Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! Here's what's happening with your projects.
+            Welcome back{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name.split(' ')[0]}` : ''}! Here's what's happening with your projects.
           </p>
         </div>
         <Button size="lg" className="gap-2 shadow-lg shadow-primary/25" asChild>
@@ -181,9 +181,9 @@ export default function DashboardPage() {
               >
                 <Link href={`/projects/${project.id}/edit`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer border-0 ring-1 ring-border">
-                    <div className="aspect-video relative overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
+                    <div className="aspect-video relative overflow-hidden bg-gradient-to-br from-secondary to-muted">
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-primary/20">
+                        <span className="text-4xl font-bold text-foreground/30">
                           {project.name.charAt(0)}
                         </span>
                       </div>

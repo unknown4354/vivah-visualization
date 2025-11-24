@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { AuthLayout } from "@/components/layouts/AuthLayout"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,14 +23,14 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const result = await signIn("credentials", {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        redirect: false,
       })
 
-      if (result?.error) {
-        setError("Invalid email or password")
+      if (error) {
+        setError(error.message)
       } else {
         router.push("/dashboard")
         router.refresh()
@@ -40,6 +40,16 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleGoogleLogin = async () => {
+    const supabase = createClient()
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
   }
 
   return (
@@ -101,7 +111,7 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline" disabled>Google</Button>
+            <Button variant="outline" onClick={handleGoogleLogin}>Google</Button>
             <Button variant="outline" disabled>Apple</Button>
           </div>
           <div className="text-center text-sm text-muted-foreground mt-4">
