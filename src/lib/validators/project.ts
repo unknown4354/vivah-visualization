@@ -4,7 +4,7 @@ export const CreateProjectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(100),
   description: z.string().max(500).optional(),
   venueId: z.string().optional(),
-  eventDate: z.string().datetime().optional(),
+  eventDate: z.string().optional().transform(val => val ? new Date(val).toISOString() : undefined),
   guestCount: z.number().int().positive().optional(),
   budget: z.number().positive().optional(),
 })

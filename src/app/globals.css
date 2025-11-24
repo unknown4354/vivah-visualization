@@ -42,16 +42,53 @@
   --radius: 0.5rem;
 }
 
+.dark {
+  /* Base Colors - Deep Minimalist Dark Mode */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+
+  /* Card & Popovers - Slightly lighter than background for contrast */
+  --card: 240 10% 6%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 6%;
+  --popover-foreground: 0 0% 98%;
+
+  /* Primary - White */
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+
+  /* Secondary */
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+
+  /* Muted - Better contrast */
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 70%;
+
+  /* Accent */
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Destructive */
+  --destructive: 0 62.8% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  /* Borders & Inputs - More visible */
+  --border: 240 3.7% 20%;
+  --input: 240 3.7% 20%;
+  --ring: 240 4.9% 83.9%;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     /* Base Colors - Deep Minimalist Dark Mode */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
-    /* Card & Popovers */
-    --card: 240 10% 3.9%;
+    /* Card & Popovers - Slightly lighter than background for contrast */
+    --card: 240 10% 6%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 240 10% 6%;
     --popover-foreground: 0 0% 98%;
 
     /* Primary - White */
@@ -62,21 +99,21 @@
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
 
-    /* Muted */
+    /* Muted - Better contrast */
     --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted-foreground: 240 5% 70%;
 
     /* Accent */
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
 
     /* Destructive */
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders & Inputs */
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    /* Borders & Inputs - More visible */
+    --border: 240 3.7% 20%;
+    --input: 240 3.7% 20%;
     --ring: 240 4.9% 83.9%;
   }
 }
@@ -131,8 +168,8 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

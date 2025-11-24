@@ -70,6 +70,12 @@ model Project {
   floorPlanUrl      String?
   thumbnail         String?
 
+  // AI Image Editing workflow fields
+  sourceImageUrl    String?       // Original uploaded venue image
+  currentImageUrl   String?       // Latest edited version of the image
+  model3DUrl        String?       // Generated 3D model from image
+  editHistory       Json          @default("[]") // Array of edit records
+
   status            ProjectStatus @default(DRAFT)
   isTemplate        Boolean       @default(false)
 
@@ -81,6 +87,7 @@ model Project {
   aiGenerations     AIGeneration[]
   activities        Activity[]
   snapshots         Snapshot[]
+  images            ProjectImage[]
 
   lastAccessedAt    DateTime      @default(now())
   createdAt         DateTime      @default(now())
@@ -215,6 +222,20 @@ model Snapshot {
   @@index([projectId])
 }
 
+model ProjectImage {
+  id                String    @id @default(cuid())
+  projectId         String
+  url               String
+  name              String?
+  isOriginal        Boolean   @default(false)
+
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime  @default(now())
+
+  @@index([projectId])
+}
+
 model AIGeneration {
   id                String    @id @default(cuid())
   userId            String
@@ -222,6 +243,7 @@ model AIGeneration {
 
   type              String
   prompt            String    @db.Text
+  enhancedPrompt    String?   @db.Text  // The actual prompt sent to AI after enhancement
   model             String
 
   resultUrl         String
@@ -230,6 +252,18 @@ model AIGeneration {
   credits           Int       @default(1)
   processingTime    Int?
 
+  // Generation tree for history tracking
+  parentGenerationId String?
+  parentGeneration   AIGeneration?  @relation("GenerationTree", fields: [parentGenerationId], references: [id])
+  childGenerations   AIGeneration[] @relation("GenerationTree")
+
+  // Iteration grouping
+  iterationGroup    String?   // Groups multiple iterations from same request
+  isChosen          Boolean   @default(false) // User selected this result
+
+  // Post-processing applied
+  postProcessing    Json?     // { upscaled: true, sharpened: "medium", etc. }
+
   user              User      @relation(fields: [userId], references: [id])
   project           Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
@@ -237,6 +271,8 @@ model AIGeneration {
 
   @@index([userId])
   @@index([projectId])
+  @@index([parentGenerationId])
+  @@index([iterationGroup])
 }
 
 model Export {

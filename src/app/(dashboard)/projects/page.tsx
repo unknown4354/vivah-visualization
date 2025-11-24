@@ -15,11 +15,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { CreateProjectModal } from "@/components/editor/CreateProjectModal"
 
+interface ProjectImage {
+  id: string
+  url: string
+}
+
 interface Project {
   id: string
   name: string
   description: string | null
   status: string
+  thumbnail: string | null
+  currentImageUrl: string | null
+  images?: ProjectImage[]
   updatedAt: string
   venue: {
     name: string
@@ -160,13 +168,21 @@ export default function ProjectsPage() {
               transition={{ delay: i * 0.05 }}
             >
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border-0 ring-1 ring-border/50 hover:ring-primary/50">
-                <Link href={`/projects/${project.id}/edit`}>
-                  <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-5xl font-bold text-primary/20">
-                        {project.name.charAt(0)}
-                      </span>
-                    </div>
+                <Link href={`/projects/${project.id}`}>
+                  <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-secondary to-muted">
+                    {project.thumbnail || project.currentImageUrl || project.images?.[0]?.url ? (
+                      <img
+                        src={project.thumbnail || project.currentImageUrl || project.images?.[0]?.url || ''}
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-5xl font-bold text-foreground/30">
+                          {project.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
                     <div className="absolute bottom-3 left-3 z-20">
                       <span className="px-2 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-medium text-foreground border">
                         {getStatusLabel(project.status)}
@@ -176,7 +192,7 @@ export default function ProjectsPage() {
                 </Link>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
-                    <Link href={`/projects/${project.id}/edit`} className="flex-1">
+                    <Link href={`/projects/${project.id}`} className="flex-1">
                       <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
                         {project.name}
                       </h3>

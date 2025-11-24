@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
+import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
 interface RouteParams {
@@ -10,8 +9,10 @@ interface RouteParams {
 // GET /api/projects/[id] - Get single project
 export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const project = await prisma.project.findFirst({
       where: {
         id,
-        userId: session.user.id
+        userId: user.id
       },
       include: {
         venue: true,
@@ -35,6 +36,20 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
               { expiresAt: null },
               { expiresAt: { gte: new Date() } }
             ]
+          }
+        },
+        images: {
+          orderBy: { createdAt: 'desc' }
+        },
+        aiGenerations: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            type: true,
+            prompt: true,
+            resultUrl: true,
+            createdAt: true,
+            isChosen: true
           }
         }
       }
@@ -63,8 +78,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 // PUT /api/projects/[id] - Update project
 export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -75,7 +92,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const existing = await prisma.project.findFirst({
       where: {
         id,
-        userId: session.user.id
+        userId: user.id
       }
     })
 
@@ -128,8 +145,10 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 // DELETE /api/projects/[id] - Delete project
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -139,7 +158,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const project = await prisma.project.findFirst({
       where: {
         id,
-        userId: session.user.id
+        userId: user.id
       }
     })
 
