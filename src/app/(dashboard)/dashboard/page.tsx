@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -34,7 +32,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
+  const session = useSession()?.data
   const [data, setData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
